@@ -44,13 +44,12 @@ RUN cd /tmp/UsbHasp; \
     cp /tmp/UsbHasp/dist/Release/GNU-Linux/usbhasp /usr/local/bin/; \
     ldconfig;
     # ---- Configure autoloading custom modules ----------------------------------------
-RUN touch /etc/modules; \
-    echo 'usb-vhci-hcd' >> /etc/modules; \
+RUN echo 'usb-vhci-hcd' >> /etc/modules; \
     echo 'usb-vhci-iocifc' >> /etc/modules; \
     touch /lib/modules/$KERNEL_VERSION/modules.dep; \
     echo 'usb-vhci-hcd.ko' >> /lib/modules/$KERNEL_VERSION/modules.dep; \
-    echo 'usb-vhci-iocifc.ko' >> /lib/modules/$KERNEL_VERSION/modules.dep; \
-    depmod -a;
+    echo 'usb-vhci-iocifc.ko' >> /lib/modules/$KERNEL_VERSION/modules.dep;
+RUN depmod -a $KERNEL_VERSION;
 #    # ---- Clear docker image ----------------------------------------------------------
 #    apt-get remove --purge -y linux-headers-$(uname -r) build-essential automake autoconf libtool git; \
 #    apt-get clean autoclean; \
@@ -59,4 +58,4 @@ RUN touch /etc/modules; \
 #    rm -rf /tmp/*; \
 #    rm -rf /var/lib/apt/lists/*
 
-CMD modprobe usb-vhci-iocifc; /etc/init.d/usbhaspd start; tail -f /dev/null
+CMD modprobe -S $KERNEL_VERSION usb-vhci-iocifc; /etc/init.d/usbhaspd start; tail -f /dev/null
